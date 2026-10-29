@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2023 Camptocamp License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="view_order_form_inherit_packaging" model="ir.ui.view">
+        <field name="name">sale.order.form.packaging</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//field[@name='order_line']/form//div[@name='ordered_qty']"
+                position="after"
+            >
+                <field name="product_uom_id" invisible="1" groups="!uom.group_uom" />
+                <field
+                    name="product_packaging_id"
+                    invisible="not product_id"
+                    context="{'default_product_id': product_id, 'list_view_ref': 'product.product_packaging_tree_view', 'form_view_ref': 'product.product_packaging_form_view'}"
+                    groups="product.group_stock_packaging"
+                />
+                <field
+                    name="product_packaging_qty"
+                    invisible="not product_packaging_id"
+                    groups="product.group_stock_packaging"
+                />
+            </xpath>
+            <xpath
+                expr="//field[@name='order_line']/list//field[@name='product_uom_id']"
+                position="after"
+            >
+                <field
+                    name="product_uom_id"
+                    column_invisible="True"
+                    groups="!uom.group_uom"
+                />
+                <field
+                    name="product_packaging_qty"
+                    invisible="not product_id or not product_packaging_id"
+                    groups="product.group_stock_packaging"
+                    optional="show"
+                />
+                <field
+                    name="product_packaging_id"
+                    invisible="not product_id"
+                    context="{'default_product_id': product_id, 'list_view_ref': 'product.product_packaging_tree_view', 'form_view_ref': 'product.product_packaging_form_view'}"
+                    groups="product.group_stock_packaging"
+                    optional="show"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

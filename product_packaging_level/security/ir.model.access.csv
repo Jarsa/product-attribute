@@ -1,0 +1,6 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+access_product_packaging_user,product.packaging.user,model_product_packaging,base.group_user,1,0,0,0
+access_product_packaging_manager,product.packaging.manager,model_product_packaging,base.group_system,1,1,1,1
+access_product_packaging_stock_manager,product.packaging.stock.manager,model_product_packaging,stock.group_stock_manager,1,1,1,1
+access_product_packaging_level_user,product.packaging.level.user,model_product_packaging_level,base.group_user,1,0,0,0
+access_product_packaging_level_manager,product.packaging.level.manager,model_product_packaging_level,product.group_stock_packaging,1,1,1,1

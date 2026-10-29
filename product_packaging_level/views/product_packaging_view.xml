@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="product.product_packaging_tree_view" model="ir.ui.view" forcecreate="1">
+        <field name="name">product.packaging.list.view</field>
+        <field name="model">product.packaging</field>
+        <field name="arch" type="xml">
+            <list string="Product Packagings" name="packaging">
+                <field name="sequence" widget="handle" />
+                <field name="product_id" />
+                <field name="name" string="Packaging" />
+                <field name="qty" />
+                <field
+                    name="product_uom_id"
+                    options="{'no_open': True, 'no_create': True}"
+                    groups="uom.group_uom"
+                />
+                <field name="barcode" optional="hide" />
+                <field
+                    name="company_id"
+                    groups="base.group_multi_company"
+                    optional="hide"
+                />
+                <field
+                    name="company_id"
+                    groups="!base.group_multi_company"
+                    column_invisible="True"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="product.product_packaging_form_view" model="ir.ui.view" forcecreate="1">
+        <field name="name">product.packaging.form.view</field>
+        <field name="model">product.packaging</field>
+        <field name="arch" type="xml">
+            <form string="Product Packaging">
+                <sheet>
+                    <label for="name" string="Packaging" />
+                    <h1>
+                        <field name="name" />
+                    </h1>
+                    <group>
+                        <field name="id" invisible="1" />
+                        <field name="company_id" invisible="1" />
+                        <group name="group_product">
+                            <field name="product_id" readonly="id" />
+                        </group>
+                        <group name="qty">
+                            <label for="qty" string="Contained quantity" />
+                            <div class="o_row">
+                                <field name="qty" />
+                                <field
+                                    name="product_uom_id"
+                                    options="{'no_open': True, 'no_create': True}"
+                                    groups="uom.group_uom"
+                                />
+                            </div>
+                            <field name="barcode" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="stock.product_packaging_tree_view" model="ir.ui.view" forcecreate="1">
+        <field name="name">product.packaging.list.view.stock</field>
+        <field name="model">product.packaging</field>
+        <field name="inherit_id" ref="product.product_packaging_tree_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="package_type_id" groups="stock.group_tracking_lot" />
+                <field
+                    name="route_ids"
+                    groups="stock.group_adv_location"
+                    optional="hide"
+                    widget="many2many_tags"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="stock.product_packaging_form_view" model="ir.ui.view" forcecreate="1">
+        <field name="name">product.packaging.form.view.stock</field>
+        <field name="model">product.packaging</field>
+        <field name="inherit_id" ref="product.product_packaging_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//label[@for='qty']" position="before">
+                <field name="package_type_id" groups="stock.group_tracking_lot" />
+            </xpath>
+            <xpath expr="//group[@name='qty']" position="after">
+                <group name="logistic">
+                    <field
+                        name="route_ids"
+                        groups="stock.group_adv_location"
+                        widget="many2many_tags"
+                    />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_packaging_tree_view" model="ir.ui.view">
+        <field name="name">product.packaging.tree (in product_packaging_level)</field>
+        <field name="model">product.packaging</field>
+        <field name="inherit_id" ref="stock.product_packaging_tree_view" />
+        <field name="arch" type="xml">
+            <field name="name" position="before">
+                <field name="display_name" string="Packaging" />
+            </field>
+            <field name="package_type_id" position="after">
+                <field name="qty_per_level" />
+                <field name="packaging_level_id" />
+            </field>
+            <xpath expr="//field[@name='barcode']" position="attributes">
+                <attribute name="required">barcode_required_for_gtin</attribute>
+            </xpath>
+            <field name="name" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_product_packaging_add_type_form" model="ir.ui.view">
+        <field name="name">product.packaging.form</field>
+        <field name="model">product.packaging</field>
+        <field name="inherit_id" ref="stock.product_packaging_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='package_type_id']" position="after">
+                <field name="qty_per_level" />
+                <field name="packaging_level_id" />
+            </xpath>
+            <xpath expr="//field[@name='barcode']" position="attributes">
+                <attribute name="required">barcode_required_for_gtin</attribute>
+            </xpath>
+            <field name="name" position="attributes">
+                <attribute name="force_save">1</attribute>
+                <attribute name="invisible">name_policy != 'user_defined'</attribute>
+            </field>
+            <field name="name" position="after">
+                <field name="display_name" invisible="name_policy == 'user_defined'" />
+            </field>
+        </field>
+    </record>
+
+    <record id="product_template_form_view_packaging" model="ir.ui.view">
+        <field name="name">product.template.form.packaging</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='inventory']" position="inside">
+                <group
+                    name="packaging"
+                    string="Packaging"
+                    col="4"
+                    invisible="(type != 'consu' or product_variant_count &gt; 1) and not is_product_variant"
+                    groups="product.group_stock_packaging"
+                >
+                    <field
+                        colspan="2"
+                        name="packaging_ids"
+                        nolabel="1"
+                        context="{'list_view_ref': 'product.product_packaging_tree_view', 'default_company_id': company_id}"
+                    />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_normal_form_view_packaging" model="ir.ui.view">
+        <field name="name">product.product.form.packaging</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view" />
+        <field name="arch" type="xml">
+            <field name="packaging_ids" position="attributes">
+                <attribute
+                    name="context"
+                >{'default_product_id': id, 'list_view_ref': 'product.product_packaging_tree_view', 'form_view_ref': 'product.product_packaging_form_view'}</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>
